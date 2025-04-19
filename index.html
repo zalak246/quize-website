@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz with Login</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      text-align: center;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .hidden {
+      display: none;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .option {
+      display: block;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #ecf0f1;
+      cursor: pointer;
+    }
+    .correct {
+      background-color: #2ecc71 !important;
+      color: white;
+    }
+    .wrong {
+      background-color: #e74c3c !important;
+      color: white;
+    }
+    .score {
+      font-weight: bold;
+      margin-top: 20px;
+    }
+    input, select {
+      margin: 10px;
+      padding: 10px;
+      width: 80%;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="welcome-page">
+  <h1>Welcome to the Quiz!</h1>
+  <input type="text" id="name" placeholder="Enter your name" required>
+  <input type="number" id="age" placeholder="Enter your age" required>
+  <select id="education">
+    <option value="">Select your education</option>
+    <option value="High School">High School</option>
+    <option value="Bachelor's">Bachelor's</option>
+    <option value="Master's">Master's</option>
+    <option value="PhD">PhD</option>
+  </select>
+  <br>
+  <button onclick="startQuiz()">Start Quiz</button>
+</div>
+
+<div class="container hidden" id="quiz-container">
+  <h2 id="question">Question text</h2>
+  <div id="options"></div>
+  <div class="score" id="score">Score: 0</div>
+</div>
+
+<div class="container hidden" id="result-page">
+  <h2>Quiz Finished!</h2>
+  <p id="final-score"></p>
+  <button onclick="restartQuiz()">Try Again</button>
+  <button onclick="goHome()">Go Home</button>
+</div>
+
+<script>
+  const questions = [
+    {
+      question: "What does CSS stands for?",
+      options: ["Computer style sheets", "Cascading Style sheets", "Creative stle sheets", "Colorful style sheets"],
+      answer: "Cascading Style sheets"
+    },
+    {
+      question: "Which HTML tag is used to create a hyperlink?",
+      options: ["<link>", "<href>", "<a>", "<url>"],
+      answer: "<a>"
+    },
+    {
+      question: "Which ptoperty is used in css to change text color?",
+      options: ["font-color", "color", "text-color", "style-color"],
+      answer: "color"
+    },
+    {
+      question: "Which HTML element is used for inserting an image?",
+      options: ["<img>", "<image>", "<src>", "<pic>"],
+      answer: "<img>"
+    },
+    {
+      question: "Which of the following is not javascript data type?",
+      options: ["String", "Boolean", "Float", "Object"],
+      answer: "Float"
+    },
+    {
+      question: "Which of these is not an operating system?",
+      options: ["Windows", "Linux", "Oracle", "Macos"],
+      answer: "Oracle"
+    },
+    {
+      question: "What does AI stands for in technology?",
+      options: ["Automated interface", "Artificial insight", "Artificial intelligence", "Automatic intelligence"],
+      answer: "Artificial intelligence"
+    },
+    {
+      question: "What does URL stands for?",
+      options: ["Uniform Resources Locator", "Uniform reference link", "Unified Resources Locator", "Uniform Retrieval Link"],
+      answer: "Uniform Resources Locator"
+    },
+    {
+      question: "Which Company devloped the windows operating system?",
+      options: ["Apple", "Google", "IMB", "Microsoft"],
+      answer: "Microsoft"
+    },
+    {
+      question: "What does HTML stand for?",
+      options: [
+        "Hyper Text Markup Language",
+        "Home Tool Markup Language",
+        "Hyperlinks and Text Markup Language",
+        "Hyper Tool Multi Language"
+      ],
+      answer: "Hyper Text Markup Language"
+    }
+  ];
+
+  let currentIndex = 0;
+  let score = 0;
+
+  function startQuiz() {
+    const name = document.getElementById('name').value;
+    const age = document.getElementById('age').value;
+    const education = document.getElementById('education').value;
+
+    if (!name || !age || !education) {
+      alert("Please fill in all login details.");
+      return;
+    }
+
+    document.getElementById('welcome-page').classList.add('hidden');
+    document.getElementById('quiz-container').classList.remove('hidden');
+    currentIndex = 0;
+    score = 0;
+    loadQuestion();
+  }
+
+  function loadQuestion() {
+    const current = questions[currentIndex];
+    document.getElementById('question').innerText = current.question;
+    const optionsContainer = document.getElementById('options');
+    optionsContainer.innerHTML = '';
+
+    current.options.forEach(option => {
+      const div = document.createElement('div');
+      div.className = 'option';
+      div.innerText = option;
+      div.onclick = () => handleAnswer(div, current.answer);
+      optionsContainer.appendChild(div);
+    });
+  }
+
+  function handleAnswer(selectedOption, correctAnswer) {
+    const allOptions = document.querySelectorAll('.option');
+    allOptions.forEach(option => {
+      option.onclick = null;
+      if (option.innerText === correctAnswer) {
+        option.classList.add('correct');
+      }
+    });
+
+    if (selectedOption.innerText === correctAnswer) {
+      score++;
+    } else {
+      selectedOption.classList.add('wrong');
+    }
+
+    document.getElementById('score').innerText =` Score: ${score}`;
+
+    setTimeout(() => {
+      currentIndex++;
+      if (currentIndex < questions.length) {
+        loadQuestion();
+      } else {
+        showResult();
+      }
+    }, 1500);
+  }
+
+  function showResult() {
+    document.getElementById('quiz-container').classList.add('hidden');
+    document.getElementById('result-page').classList.remove('hidden');
+    document.getElementById('final-score').innerText = `Your final score is ${score}/${questions.length}`;
+  }
+
+  function restartQuiz() {
+    document.getElementById('result-page').classList.add('hidden');
+    document.getElementById('quiz-container').classList.remove('hidden');
+    currentIndex = 0;
+    score = 0;
+    document.getElementById('score').innerText =` Score: ${score}`;
+    loadQuestion();
+  }
+
+  function goHome() {
+    document.getElementById('result-page').classList.add('hidden');
+    document.getElementById('welcome-page').classList.remove('hidden');
+    document.getElementById('name').value = '';
+    document.getElementById('age').value = '';
+    document.getElementById('education').value = '';
+  }
+</script>
+
+</body>
+</html>
